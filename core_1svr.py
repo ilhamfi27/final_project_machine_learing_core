@@ -7,7 +7,7 @@ from skfeature.function.statistical_based import f_score
 from sklearn.metrics import r2_score
 
 def main():
-    sc = MinMaxScaler()
+    sc = MinMaxScaler(feature_range=(0,10))
 
     # 1. get data
     df = pd.read_excel('e-commerce-dataset.xlsx')
@@ -42,8 +42,8 @@ def main():
     regressor = SVR(gamma='scale', C=1.0, epsilon=0.2)
 
     selected_feature = np.array(selected_feature)
-    X_train = selected_feature[0:59,1:]
-    y_train = y[0:59]
+    X_train = selected_feature[0:58,1:]
+    y_train = y[0:58]
 
     regressor.fit(X_train, y_train)
 
