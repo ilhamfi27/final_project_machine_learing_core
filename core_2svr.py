@@ -41,6 +41,12 @@ def main():
         print("{}. With {} column, R2_SCORE score is {} and RMSE score is {}"
             .format(num + 1, result[0], result[1], result[2]))
 
+    result = np.array(score_result)
+    plt.scatter(result[0:, 0], result[0:, 1])
+    plt.title("R2 Score Plot")
+    plt.xlabel("Num Of Tested Feature")
+    plt.ylabel("R2 Score")
+    plt.show()
 
 def train_per_10_feature(X, y):
     repeat = 0
