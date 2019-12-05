@@ -36,29 +36,25 @@ def main():
         best_sort_feature.append(row_array)
     
     # 5. get best feature predict score
-    best_pred, best_score_feature_num, best_score, score_result \
+    best_pred, best_score, result, ten_column_predictions \
          = train_per_10_feature(best_sort_feature, y)
 
-    # for num, result in enumerate(score_result):
-    #     print("{}. With {} column, R2_SCORE score is {} and RMSE score is {}"
-    #         .format(num + 1, result[0], result[1], result[2]))
-    
-    # print("Best Score {}".format(best_score))
-    # print("Best Num Feature {}".format(best_score_feature_num))
-    # print("Best prediction {}".format(best_pred))
-
-    # result = np.array(score_result)
+    # result = np.array(result)
     # plt.scatter(result[0:, 0], result[0:, 1])
+    # plt.plot(result[0:, 0], result[0:, 1])
     # plt.title("R2 Score Plot")
-    # plt.xlabel("Num Of Tested Feature")
+    # plt.xlabel("Jumlah Fitur")
     # plt.ylabel("R2 Score")
     # plt.show()
 
-    plt.scatter(y, best_pred)
-    plt.plot(y, y)
-    plt.title("Prediction Result")
-    plt.xlabel("True Data")
-    plt.ylabel("Prediction")
+    fig = plt.figure()
+    fig.subplots_adjust(right=0.95, left=0.05)
+    fig.suptitle("Hasil Testing Prediksi Fitur")
+    for i, data in enumerate(ten_column_predictions):
+        ax = fig.add_subplot(2, 5, (i + 1))
+        ax.scatter(y, data)
+        ax.plot(y, y)
+        ax.set_title("{} Fitur".format(result[i][0]))
     plt.show()
 
 def train_per_10_feature(X, y):
@@ -66,9 +62,9 @@ def train_per_10_feature(X, y):
     X = np.array(X)
     X_column = X.shape[1]
     result = []
-    best_score_feature_num = 0
     best_score = 0
     best_pred = []
+    ten_column_predictions = []
 
     while repeat < X_column - 1:
         score = []
@@ -107,12 +103,13 @@ def train_per_10_feature(X, y):
         
         result.append(score)
 
+        ten_column_predictions.append(y_pred)
+
         if best_score < accuracy_score:
-            best_score_feature_num = repeat
             best_pred = y_pred
             best_score = accuracy_score
 
-    return best_pred, best_score_feature_num, best_score, result
+    return best_pred, best_score, result, ten_column_predictions
 
 if __name__ == "__main__":
     main()
