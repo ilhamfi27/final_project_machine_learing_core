@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.svm import SVR
 from sklearn.preprocessing import MinMaxScaler
-from skfeature.function.statistical_based import f_score
+from skfeature.function.statistical_based import chi_square
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 
@@ -28,7 +28,9 @@ def main():
     # # 4. feature selection
     best_sort_feature = []
     
-    ranked_index = f_score.f_score(X, y, mode="index")
+    X_feature = X.astype(int)
+    y_label = y.astype(int)
+    ranked_index = chi_square.chi_square(X_feature, y_label, mode="index")
     for row in X:
         row_array = []
         for num, feature_idx in enumerate(ranked_index):
@@ -42,14 +44,14 @@ def main():
     # result = np.array(result)
     # plt.scatter(result[0:, 0], result[0:, 1])
     # plt.plot(result[0:, 0], result[0:, 1])
-    # plt.title("R2 Score Plot")
+    # plt.title("Chi Score Plot")
     # plt.xlabel("Jumlah Fitur")
-    # plt.ylabel("R2 Score")
+    # plt.ylabel("Chi Score")
     # plt.show()
 
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
-    fig.suptitle("Hasil Prediksi Fitur Dengan F-Score")
+    fig.suptitle("Hasil Prediksi Fitur Dengan Chi Square")
     for i, data in enumerate(ten_column_predictions):
         ax = fig.add_subplot(2, 5, (i + 1))
         ax.scatter(y, data)
