@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.svm import SVR
 from sklearn.preprocessing import MinMaxScaler
-from skfeature.function.statistical_based import f_score
+from skfeature.function.statistical_based import CFS
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import LeaveOneOut
@@ -26,10 +26,10 @@ def main():
     X = np.array(sc.transform(clean_X))
     y = np.array(clean_y)
 
-    # # 4. feature selection
+    # 4. feature selection
     best_sort_feature = []
     
-    ranked_index = f_score.f_score(X, y, mode="index")
+    ranked_index = CFS.cfs(X, y)
     for row in X:
         row_array = []
         for num, feature_idx in enumerate(ranked_index):
@@ -40,23 +40,23 @@ def main():
     best_pred, best_score, result, ten_column_predictions \
          = train_per_10_feature(best_sort_feature, y)
 
-    # result = np.array(result)
-    # plt.scatter(result[0:, 0], result[0:, 1])
-    # plt.plot(result[0:, 0], result[0:, 1])
-    # plt.title("R2 Score Plot")
-    # plt.xlabel("Jumlah Fitur")
-    # plt.ylabel("R2 Score")
-    # plt.show()
-
-    fig = plt.figure()
-    fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
-    fig.suptitle("Hasil Prediksi Fitur Dengan F-Score")
-    for i, data in enumerate(ten_column_predictions):
-        ax = fig.add_subplot(2, 5, (i + 1))
-        ax.scatter(y, data)
-        ax.plot(y, y)
-        ax.set_title("{} Fitur".format(result[i][0]))
+    result = np.array(result)
+    plt.scatter(result[0:, 0], result[0:, 1])
+    plt.plot(result[0:, 0], result[0:, 1])
+    plt.title("CFS Plot")
+    plt.xlabel("Jumlah Fitur")
+    plt.ylabel("CFS")
     plt.show()
+
+    # fig = plt.figure()
+    # fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
+    # fig.suptitle("Hasil Prediksi Fitur Dengan Chi Square")
+    # for i, data in enumerate(ten_column_predictions):
+    #     ax = fig.add_subplot(2, 5, (i + 1))
+    #     ax.scatter(y, data)
+    #     ax.plot(y, y)
+    #     ax.set_title("{} Fitur".format(result[i][0]))
+    # plt.show()
 
 def train_per_10_feature(X, y):
     repeat = 0
@@ -92,7 +92,7 @@ def train_per_10_feature(X, y):
         y_true = y[0:]
         accuracy_score = r2_score(y_true, y_pred)
         rmse_score = mean_squared_error(y_true, y_pred)
-
+        
         score.append(repeat)
         score.append(accuracy_score)
         score.append(rmse_score)

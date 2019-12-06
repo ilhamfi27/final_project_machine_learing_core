@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from skfeature.function.statistical_based import f_score
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import LeaveOneOut
 
 def main():
     sc = MinMaxScaler(feature_range=(0,10))
@@ -40,19 +41,14 @@ def main():
     X = np.array(ranked_index)
     y_pred = []
 
-    for train_sequence in range(len(X)):
-        X_train = []
-        y_train = []
-        predict_row = []
-        for sequence in range(len(X)):
-            if(train_sequence == sequence):
-                predict_row.append(X[sequence, 0:])
-            else:
-                X_train.append(X[sequence, 0:])
-                y_train.append(y[sequence])
+    loo = LeaveOneOut()
+    loo.get_n_splits(X)
+
+    for train_index, test_index in loo.split(X):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train = y[train_index]
         regressor.fit(X_train, y_train)
-        prediction_result = regressor.predict(predict_row)
-        y_pred.extend(prediction_result)
+        y_pred.extend(regressor.predict(X_test))
 
     print(y_pred)
 

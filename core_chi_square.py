@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from skfeature.function.statistical_based import chi_square
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import LeaveOneOut
 
 def main():
     sc = MinMaxScaler(feature_range=(0,10))
@@ -78,21 +79,16 @@ def train_per_10_feature(X, y):
         # predict
         regressor = SVR(gamma='scale', C=1.0, epsilon=0.2)
         y_pred = []
+        
+        X_selected = X[0:, 0:repeat]
+        loo = LeaveOneOut()
+        loo.get_n_splits(X)
 
-        # using leave one out cross validation
-        for train_sequence in range(len(X)):
-            X_train = []
-            y_train = []
-            predict_row = []
-            for sequence in range(len(X)):
-                if(train_sequence == sequence):
-                    predict_row.append(X[sequence,0:repeat])
-                else:
-                    X_train.append(X[sequence,0:repeat])
-                    y_train.append(y[sequence])
+        for train_index, test_index in loo.split(X_selected):
+            X_train, X_test = X_selected[train_index], X_selected[test_index]
+            y_train = y[train_index]
             regressor.fit(X_train, y_train)
-            prediction_result = regressor.predict(predict_row)
-            y_pred.extend(prediction_result)
+            y_pred.extend(regressor.predict(X_test))
 
         # count accuracy prediction
         y_true = y[0:]
