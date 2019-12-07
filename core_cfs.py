@@ -7,6 +7,7 @@ from skfeature.function.statistical_based import CFS
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import LeaveOneOut
+from ten_feature_train import trainf
 
 def main():
     sc = MinMaxScaler(feature_range=(0,10))
@@ -38,74 +39,36 @@ def main():
     
     # 5. get best feature predict score
     best_pred, best_score, result, ten_column_predictions \
-         = train_per_10_feature(best_sort_feature, y)
+         = trainf(best_sort_feature, y)
+
+    for num, score_res in enumerate(result):
+        print("{}. {} column, R2_SCOREnya adalah {} dan RMSEnya adalah {}"
+            .format(num + 1, score_res[0], score_res[1], score_res[2]))
 
     result = np.array(result)
     plt.scatter(result[0:, 0], result[0:, 1])
     plt.plot(result[0:, 0], result[0:, 1])
-    plt.title("CFS Plot")
+    plt.title("Penilaian Akurasi Dengan R2 Score (CFS)")
     plt.xlabel("Jumlah Fitur")
-    plt.ylabel("CFS")
+    plt.ylabel("R2 Score")
     plt.show()
 
-    # fig = plt.figure()
-    # fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
-    # fig.suptitle("Hasil Prediksi Fitur Dengan Chi Square")
-    # for i, data in enumerate(ten_column_predictions):
-    #     ax = fig.add_subplot(2, 5, (i + 1))
-    #     ax.scatter(y, data)
-    #     ax.plot(y, y)
-    #     ax.set_title("{} Fitur".format(result[i][0]))
-    # plt.show()
+    fig = plt.figure()
+    fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
+    fig.suptitle("Hasil Prediksi Fitur Dengan CFS")
+    for i, data in enumerate(ten_column_predictions):
+        ax = fig.add_subplot(2, 5, (i + 1))
+        ax.scatter(y, data)
+        ax.plot(y, y)
+        ax.set_title("{} Fitur".format(result[i][0]))
+    plt.show()
 
-def train_per_10_feature(X, y):
-    repeat = 0
-    X = np.array(X)
-    X_column = X.shape[1]
-    result = []
-    best_score = 0
-    best_pred = []
-    ten_column_predictions = []
-
-    while repeat < X_column - 1:
-        score = []
-        if (X_column - repeat) < 10 :
-            repeat += (X_column - repeat)
-        else:
-            repeat += 10
-    
-        # predict
-        regressor = SVR(gamma='scale', C=1.0, epsilon=0.2)
-        y_pred = []
-        
-        X_selected = X[0:, 0:repeat]
-        loo = LeaveOneOut()
-        loo.get_n_splits(X)
-
-        for train_index, test_index in loo.split(X_selected):
-            X_train, X_test = X_selected[train_index], X_selected[test_index]
-            y_train = y[train_index]
-            regressor.fit(X_train, y_train)
-            y_pred.extend(regressor.predict(X_test))
-
-        # count accuracy prediction
-        y_true = y[0:]
-        accuracy_score = r2_score(y_true, y_pred)
-        rmse_score = mean_squared_error(y_true, y_pred)
-        
-        score.append(repeat)
-        score.append(accuracy_score)
-        score.append(rmse_score)
-        
-        result.append(score)
-
-        ten_column_predictions.append(y_pred)
-
-        if best_score < accuracy_score:
-            best_pred = y_pred
-            best_score = accuracy_score
-
-    return best_pred, best_score, result, ten_column_predictions
+    plt.scatter(y, best_pred)
+    plt.plot(y, y)
+    plt.title("Hasil Prediksi Terbaik (CFS)")
+    plt.xlabel("Data Real")
+    plt.ylabel("Data Prediksi")
+    plt.show()
 
 if __name__ == "__main__":
     main()
