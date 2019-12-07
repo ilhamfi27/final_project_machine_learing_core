@@ -23,6 +23,7 @@ def trainf(X, y):
         # predict
         regressor = SVR(gamma='scale', C=1.0, epsilon=0.2)
         y_pred = []
+        y_true = []
         
         X_selected = X[0:, 0:repeat]
         loo = LeaveOneOut()
@@ -30,12 +31,12 @@ def trainf(X, y):
 
         for train_index, test_index in loo.split(X_selected):
             X_train, X_test = X_selected[train_index], X_selected[test_index]
-            y_train = y[train_index]
+            y_train, y_test = y[train_index], y[test_index]
             regressor.fit(X_train, y_train)
             y_pred.extend(regressor.predict(X_test))
+            y_true.extend(y_test)
 
         # count accuracy prediction
-        y_true = y[0:]
         accuracy_score = r2_score(y_true, y_pred)
         rmse_score = mean_squared_error(y_true, y_pred)
 
