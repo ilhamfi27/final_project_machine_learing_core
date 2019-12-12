@@ -21,7 +21,7 @@ def trainf(X, y):
             repeat += 10
     
         # predict
-        regressor = SVR(gamma='scale', C=1.0, epsilon=0.2)
+        regressor = SVR(gamma='scale', C=10.0, epsilon=0.2)
         y_pred = []
         y_true = []
         
