@@ -3,8 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.svm import SVR
 from sklearn.preprocessing import MinMaxScaler
-from skfeature.function.statistical_based import f_score
-from skfeature.function.statistical_based import chi_square
 from skfeature.function.statistical_based import CFS
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
@@ -31,17 +29,16 @@ def main():
     X = np.array(sc.transform(clean_X))
     y = np.array(clean_y)
 
-    # # 4. feature selection
+    # 4. feature selection
     best_sort_feature = []
     
-    # ranked_index = f_score.f_score(X, y, mode="index")
+    ranked_index = CFS.cfs(X, y)
     
-    X_feature = X.astype(int)
-    y_label = y.astype(int)
-    ranked_index = chi_square.chi_square(X_feature, y_label, mode="index")
-
-    # ranked_index = CFS.cfs(X, y)
-
+    cp = CSVPush("feature_selection_result.csv", ["Seleksi Fitur", "Jumlah Fitur", "Index Ranking"])
+    y_result = ', '.join(map(str, y))
+    ranked_index_result = ', '.join(map(str, ranked_index))
+    cp.push(["CFS", y_result, ranked_index_result])
+    
     for row in X:
         row_array = []
         for num, feature_idx in enumerate(ranked_index):
@@ -55,7 +52,7 @@ def main():
     full_arguments = sys.argv
     argument_list = full_arguments[1:]
 
-    unix_options = "hs:f:"
+    unix_options = "hs:"
     gnu_options = ["help", "show="]
 
     try:
@@ -76,36 +73,28 @@ def main():
                             .format(num + 1, score_res[0], score_res[1], score_res[2]))
                 elif  current_value == "featureGraph":
                     result = np.array(result)
-                    plt.scatter(result[0:, 0], result[0:, 2])
-                    plt.plot(result[0:, 0], result[0:, 2])
-                    for i, txt in enumerate(result[0:, 2]):
-                        plt.annotate("%.3f" % txt, (result[0:, 0][i], result[0:, 2][i]),
-                                xycoords='data',
-                                xytext=(15, 25), textcoords='offset points',
-                                bbox=dict(boxstyle='round, pad=0.2', fc='yellow', alpha=0.7),
-                                horizontalalignment='right', verticalalignment='top',
-                                arrowprops=dict(
-                                    arrowstyle='->', color='black'
-                                )
-                            )
-                    plt.xlabel("n-Feature")
-                    # plt.ylabel("R\u00b2 Score") # R<sup>2</sup> Score
-                    plt.ylabel("RMSE Score")
+                    plt.scatter(result[0:, 0], result[0:, 1])
+                    plt.plot(result[0:, 0], result[0:, 1])
+                    plt.title("Penilaian Akurasi Dengan R2 Score (CFS)")
+                    plt.xlabel("Jumlah Fitur")
+                    plt.ylabel("R2 Score")
                     plt.show()
                 elif  current_value == "tenGraph":
                     fig = plt.figure()
                     fig.subplots_adjust(hspace=0.2, wspace=0.15, bottom=0.05, right=0.95, left=0.05)
+                    fig.suptitle("Hasil Prediksi Fitur Dengan CFS")
                     for i, data in enumerate(ten_column_predictions):
                         ax = fig.add_subplot(2, 5, (i + 1))
                         ax.scatter(y, data)
                         ax.plot(y, y)
-                        ax.set_title("{} Feature".format(result[i][0]))
+                        ax.set_title("{} Fitur".format(result[i][0]))
                     plt.show()
                 elif  current_value == "bestPrediction":
                     plt.scatter(y, best_pred)
                     plt.plot(y, y)
-                    plt.xlabel("Actual Data")
-                    plt.ylabel("Prediction Data")
+                    plt.title("Hasil Prediksi Terbaik (CFS)")
+                    plt.xlabel("Data Real")
+                    plt.ylabel("Data Prediksi")
                     plt.show()
                 else:
                     print("Invalid option value")
