@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import pickle
 from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
@@ -18,9 +19,9 @@ def main():
 
     # 1. get data
     df = pd.read_excel('D:\\Private\\my_projects\\python\\final_project_core\\data_source\\e-commerce-dataset.xlsx')
-    city_id = df.iloc[0:, 0].values
-    raw_X = df.iloc[0:, 2:].values  # dataset
-    raw_y = df.iloc[0:, 1].values  # label
+    city_id = np.asarray(df['city_id'])
+    raw_X = np.asarray(df.loc[:, 'sum_price_car':'std_buyer_land_rent']) # features
+    raw_y = np.asarray(df['BPS_poverty_rate'])  # label
 
     # 2. pre-processing
     clean_X = np.nan_to_num(raw_X)
